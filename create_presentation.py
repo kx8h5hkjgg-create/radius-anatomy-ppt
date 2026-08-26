@@ -1,7 +1,18 @@
 from pptx import Presentation
 from pptx.util import Inches, Pt
-from pptx.enum.text import PP_ALIGN
+from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
 from pptx.dml.color import RGBColor
+from pptx.enum.shapes import MSO_SHAPE
+from pptx.oxml.xmlchemy import OxmlElement
+
+def add_animation(shape, effect_type='appear'):
+    """Add animation effects to shapes"""
+    try:
+        # This is a simplified animation setup
+        # Full animation requires XML manipulation
+        pass
+    except:
+        pass
 
 # Create presentation
 prs = Presentation()
@@ -11,16 +22,24 @@ prs.slide_height = Inches(7.5)
 # Define color scheme
 PRIMARY_COLOR = RGBColor(192, 0, 60)  # Pink/Maroon
 SECONDARY_COLOR = RGBColor(100, 149, 237)  # Cornflower Blue
-TEXT_COLOR = RGBColor(40, 40, 40)  # Dark Gray
 ACCENT_COLOR = RGBColor(220, 20, 60)  # Crimson
+TEXT_COLOR = RGBColor(40, 40, 40)  # Dark Gray
+LIGHT_BG = RGBColor(245, 245, 250)
 
 def add_title_slide(prs, title, subtitle):
     """Add title slide"""
-    slide = prs.slides.add_slide(prs.slide_layouts[6])  # Blank layout
+    slide = prs.slides.add_slide(prs.slide_layouts[6])
     background = slide.background
     fill = background.fill
     fill.solid()
     fill.fore_color.rgb = PRIMARY_COLOR
+    
+    # Decorative shape
+    shape1 = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, 
+                                     Inches(0), Inches(0), Inches(10), Inches(1.5))
+    shape1.fill.solid()
+    shape1.fill.fore_color.rgb = ACCENT_COLOR
+    shape1.line.color.rgb = ACCENT_COLOR
     
     # Title
     title_box = slide.shapes.add_textbox(Inches(0.5), Inches(2.5), Inches(9), Inches(1.5))
@@ -34,7 +53,7 @@ def add_title_slide(prs, title, subtitle):
     p.alignment = PP_ALIGN.CENTER
     
     # Subtitle
-    subtitle_box = slide.shapes.add_textbox(Inches(0.5), Inches(4.2), Inches(9), Inches(1.5))
+    subtitle_box = slide.shapes.add_textbox(Inches(0.5), Inches(4.2), Inches(9), Inches(2))
     subtitle_frame = subtitle_box.text_frame
     subtitle_frame.word_wrap = True
     p = subtitle_frame.paragraphs[0]
@@ -43,24 +62,36 @@ def add_title_slide(prs, title, subtitle):
     p.font.color.rgb = RGBColor(255, 255, 255)
     p.alignment = PP_ALIGN.CENTER
     
+    # Footer
+    footer_box = slide.shapes.add_textbox(Inches(0.5), Inches(6.8), Inches(9), Inches(0.5))
+    footer_frame = footer_box.text_frame
+    p = footer_frame.paragraphs[0]
+    p.text = "Essentials of Human Osteology"
+    p.font.size = Pt(20)
+    p.font.italic = True
+    p.font.color.rgb = RGBColor(200, 200, 200)
+    p.alignment = PP_ALIGN.CENTER
+    
     return slide
 
-def add_content_slide(prs, title, content_list):
+def add_content_slide(prs, title, content_list, slide_number=None):
     """Add content slide with bullet points"""
     slide = prs.slides.add_slide(prs.slide_layouts[6])
     background = slide.background
     fill = background.fill
     fill.solid()
-    fill.fore_color.rgb = RGBColor(245, 245, 250)
+    fill.fore_color.rgb = LIGHT_BG
     
     # Add title bar
-    title_shape = slide.shapes.add_shape(1, Inches(0), Inches(0), Inches(10), Inches(0.8))
+    title_shape = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, 
+                                          Inches(0), Inches(0), Inches(10), Inches(0.9))
     title_shape.fill.solid()
     title_shape.fill.fore_color.rgb = PRIMARY_COLOR
     title_shape.line.color.rgb = PRIMARY_COLOR
     
     # Title text
     title_frame = title_shape.text_frame
+    title_frame.vertical_anchor = MSO_ANCHOR.MIDDLE
     p = title_frame.paragraphs[0]
     p.text = title
     p.font.size = Pt(44)
@@ -69,8 +100,18 @@ def add_content_slide(prs, title, content_list):
     p.space_before = Pt(5)
     p.space_after = Pt(5)
     
-    # Content
-    content_box = slide.shapes.add_textbox(Inches(0.7), Inches(1.2), Inches(8.6), Inches(5.8))
+    # Slide number
+    if slide_number:
+        number_box = slide.shapes.add_textbox(Inches(9.2), Inches(0.2), Inches(0.7), Inches(0.5))
+        number_frame = number_box.text_frame
+        p = number_frame.paragraphs[0]
+        p.text = str(slide_number)
+        p.font.size = Pt(18)
+        p.font.bold = True
+        p.font.color.rgb = RGBColor(255, 255, 255)
+    
+    # Content box
+    content_box = slide.shapes.add_textbox(Inches(0.7), Inches(1.3), Inches(8.6), Inches(5.7))
     text_frame = content_box.text_frame
     text_frame.word_wrap = True
     
@@ -88,31 +129,49 @@ def add_content_slide(prs, title, content_list):
         p.space_after = Pt(8)
         p.line_spacing = 1.3
     
+    # Add decorative line at bottom
+    line = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, 
+                                   Inches(0.5), Inches(7.3), Inches(9), Inches(0.05))
+    line.fill.solid()
+    line.fill.fore_color.rgb = ACCENT_COLOR
+    line.line.color.rgb = ACCENT_COLOR
+    
     return slide
 
-def add_two_column_slide(prs, title, left_content, right_content):
+def add_two_column_slide(prs, title, left_title, left_content, right_title, right_content, slide_number=None):
     """Add two-column layout slide"""
     slide = prs.slides.add_slide(prs.slide_layouts[6])
     background = slide.background
     fill = background.fill
     fill.solid()
-    fill.fore_color.rgb = RGBColor(245, 245, 250)
+    fill.fore_color.rgb = LIGHT_BG
     
     # Add title bar
-    title_shape = slide.shapes.add_shape(1, Inches(0), Inches(0), Inches(10), Inches(0.8))
+    title_shape = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE,
+                                          Inches(0), Inches(0), Inches(10), Inches(0.9))
     title_shape.fill.solid()
     title_shape.fill.fore_color.rgb = PRIMARY_COLOR
     title_shape.line.color.rgb = PRIMARY_COLOR
     
     title_frame = title_shape.text_frame
+    title_frame.vertical_anchor = MSO_ANCHOR.MIDDLE
     p = title_frame.paragraphs[0]
     p.text = title
     p.font.size = Pt(44)
     p.font.bold = True
     p.font.color.rgb = RGBColor(255, 255, 255)
     
-    # Left column
-    left_box = slide.shapes.add_textbox(Inches(0.5), Inches(1.2), Inches(4.5), Inches(5.8))
+    # Left column header
+    left_header = slide.shapes.add_textbox(Inches(0.5), Inches(1.1), Inches(4.5), Inches(0.4))
+    left_h_frame = left_header.text_frame
+    p = left_h_frame.paragraphs[0]
+    p.text = left_title
+    p.font.size = Pt(22)
+    p.font.bold = True
+    p.font.color.rgb = PRIMARY_COLOR
+    
+    # Left column content
+    left_box = slide.shapes.add_textbox(Inches(0.5), Inches(1.6), Inches(4.5), Inches(5.4))
     left_frame = left_box.text_frame
     left_frame.word_wrap = True
     
@@ -122,13 +181,23 @@ def add_two_column_slide(prs, title, left_content, right_content):
         else:
             p = left_frame.add_paragraph()
         p.text = item
-        p.font.size = Pt(18)
+        p.font.size = Pt(16)
         p.font.color.rgb = TEXT_COLOR
         p.space_before = Pt(6)
         p.space_after = Pt(6)
+        p.line_spacing = 1.2
     
-    # Right column
-    right_box = slide.shapes.add_textbox(Inches(5.2), Inches(1.2), Inches(4.5), Inches(5.8))
+    # Right column header
+    right_header = slide.shapes.add_textbox(Inches(5.2), Inches(1.1), Inches(4.5), Inches(0.4))
+    right_h_frame = right_header.text_frame
+    p = right_h_frame.paragraphs[0]
+    p.text = right_title
+    p.font.size = Pt(22)
+    p.font.bold = True
+    p.font.color.rgb = PRIMARY_COLOR
+    
+    # Right column content
+    right_box = slide.shapes.add_textbox(Inches(5.2), Inches(1.6), Inches(4.5), Inches(5.4))
     right_frame = right_box.text_frame
     right_frame.word_wrap = True
     
@@ -138,15 +207,28 @@ def add_two_column_slide(prs, title, left_content, right_content):
         else:
             p = right_frame.add_paragraph()
         p.text = item
-        p.font.size = Pt(18)
+        p.font.size = Pt(16)
         p.font.color.rgb = TEXT_COLOR
         p.space_before = Pt(6)
         p.space_after = Pt(6)
+        p.line_spacing = 1.2
+    
+    # Column separator
+    separator = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE,
+                                        Inches(5.0), Inches(1.1), Inches(0.03), Inches(5.9))
+    separator.fill.solid()
+    separator.fill.fore_color.rgb = ACCENT_COLOR
+    separator.line.color.rgb = ACCENT_COLOR
     
     return slide
 
+# ============= SLIDE CONTENT =============
+
+slide_num = 1
+
 # Slide 1: Title Slide
 add_title_slide(prs, "THE RADIUS BONE", "Comprehensive Anatomy Guide for Students")
+slide_num += 1
 
 # Slide 2: Introduction
 add_content_slide(prs, "Introduction to the Radius", [
@@ -156,7 +238,8 @@ add_content_slide(prs, "Introduction to the Radius", [
     "• Forms the lateral (thumb) side of forearm",
     "• Works with ulna for pronation and supination",
     "• Key articulation with humerus (elbow joint)"
-])
+], slide_num)
+slide_num += 1
 
 # Slide 3: General Overview
 add_content_slide(prs, "Basic Structure", [
@@ -168,7 +251,8 @@ add_content_slide(prs, "Basic Structure", [
     "    - Articulates with humerus at elbow",
     "    - Rotates around ulna",
     "    - Supports wrist and hand"
-])
+], slide_num)
+slide_num += 1
 
 # Slide 4: Upper End - Overview
 add_content_slide(prs, "Upper End (Proximal End)", [
@@ -178,7 +262,8 @@ add_content_slide(prs, "Upper End (Proximal End)", [
     "    3. Radial tuberosity",
     "• Articulates with humerus and ulna",
     "• Supports pronation and supination"
-])
+], slide_num)
+slide_num += 1
 
 # Slide 5: The Radial Head
 add_content_slide(prs, "The Radial Head (Caput)", [
@@ -189,7 +274,8 @@ add_content_slide(prs, "The Radial Head (Caput)", [
     "• Peripheral margin: Articulates medially with radial notch of ulna",
     "• Rest of margin: Encircled by annular ligament",
     "• Forms superior radio-ulnar joint"
-])
+], slide_num)
+slide_num += 1
 
 # Slide 6: Radial Head Details
 add_content_slide(prs, "Radial Head - Articular Surfaces", [
@@ -201,7 +287,8 @@ add_content_slide(prs, "Radial Head - Articular Surfaces", [
     "• Annular ligament encircles the margin",
     "• Posterior surface palpable in lateral depressed area",
     "• Moves during pronation and supination of forearm"
-])
+], slide_num)
+slide_num += 1
 
 # Slide 7: Neck of Radius
 add_content_slide(prs, "The Neck (Collum)", [
@@ -211,7 +298,8 @@ add_content_slide(prs, "The Neck (Collum)", [
     "• Supported by QUADRATE LIGAMENT",
     "• Derived from interlacement of distal border of annular ligament",
     "• Provides attachment points for supporting structures"
-])
+], slide_num)
+slide_num += 1
 
 # Slide 8: Radial Tuberosity
 add_content_slide(prs, "Radial Tuberosity", [
@@ -224,7 +312,8 @@ add_content_slide(prs, "Radial Tuberosity", [
     "       - Separated from biceps tendon by bursa",
     "       - Bursa for supination of forearm",
     "• Lower end: Attachment to OBLIQUE CORD"
-])
+], slide_num)
+slide_num += 1
 
 # Slide 9: Shaft Overview
 add_content_slide(prs, "The Shaft (Diaphysis)", [
@@ -237,7 +326,8 @@ add_content_slide(prs, "The Shaft (Diaphysis)", [
     "    1. Anterior surface",
     "    2. Posterior surface",
     "    3. Lateral surface"
-])
+], slide_num)
+slide_num += 1
 
 # Slide 10: Anterior Border
 add_content_slide(prs, "Anterior Border", [
@@ -250,7 +340,8 @@ add_content_slide(prs, "Anterior Border", [
     "    - Gives origin to RADIAL HEAD OF FLEXOR DIGITORUM SUPERFICIALIS",
     "• LOWER VERTICAL RIDGE:",
     "    - Attachment to lateral end of EXTENSOR RETINACULUM"
-])
+], slide_num)
+slide_num += 1
 
 # Slide 11: Posterior Border
 add_content_slide(prs, "Posterior Border", [
@@ -260,7 +351,8 @@ add_content_slide(prs, "Posterior Border", [
     "• Reaches: POSTERO-INFERIOR part of radial tuberosity",
     "• Provides attachment for muscular structures",
     "• Important landmark for anatomical identification"
-])
+], slide_num)
+slide_num += 1
 
 # Slide 12: Interosseous Border
 add_content_slide(prs, "Interosseous (Medial) Border", [
@@ -273,7 +365,8 @@ add_content_slide(prs, "Interosseous (Medial) Border", [
     "    - NOT the nerves",
     "• Lower margin: Continuous with capsule ligament",
     "    - INFERIOR RADIO-ULNAR JOINT"
-])
+], slide_num)
+slide_num += 1
 
 # Slide 13: Anterior Surface
 add_content_slide(prs, "Anterior Surface of Shaft", [
@@ -284,7 +377,8 @@ add_content_slide(prs, "Anterior Surface of Shaft", [
     "    - Situated near middle of shaft",
     "• Attachment points for muscles",
     "• Important for fluid dynamics during pronation"
-])
+], slide_num)
+slide_num += 1
 
 # Slide 14: Posterior Surface
 add_content_slide(prs, "Posterior Surface of Shaft", [
@@ -296,7 +390,8 @@ add_content_slide(prs, "Posterior Surface of Shaft", [
     "    - Anterior surface along with triangular medial area",
     "    - In front of interosseous membrane",
     "    - Insertion to PRONATOR QUADRATUS"
-])
+], slide_num)
+slide_num += 1
 
 # Slide 15: Lateral Surface
 add_content_slide(prs, "Lateral Surface of Shaft", [
@@ -307,7 +402,8 @@ add_content_slide(prs, "Lateral Surface of Shaft", [
     "• Receives insertion of SUPINATOR muscle",
     "• Deep part of supinator muscle attachment",
     "• Contains deep branch of RADIAL NERVE (posterior interosseous nerve)"
-])
+], slide_num)
+slide_num += 1
 
 # Slide 16: Lower End - Overview
 add_content_slide(prs, "Lower End (Distal End) - Overview", [
@@ -319,7 +415,8 @@ add_content_slide(prs, "Lower End (Distal End) - Overview", [
     "    4. Posterior (with grooves)",
     "• INFERIOR CARPAL ARTICULAR SURFACE",
     "• Important for wrist and hand movement"
-])
+], slide_num)
+slide_num += 1
 
 # Slide 17: Lateral Surface - Styloid Process
 add_content_slide(prs, "Lateral Surface - Styloid Process", [
@@ -331,7 +428,8 @@ add_content_slide(prs, "Lateral Surface - Styloid Process", [
     "    - Receives insertion of BRACHIORADIALIS",
     "    - Crossed obliquely by ABDUCTOR POLLICIS LONGUS",
     "    - Crossed by EXTENSOR POLLICIS BREVIS tendons"
-])
+], slide_num)
+slide_num += 1
 
 # Slide 18: Medial Surface - Ulnar Notch
 add_content_slide(prs, "Medial Surface - Ulnar Notch", [
@@ -344,7 +442,8 @@ add_content_slide(prs, "Medial Surface - Ulnar Notch", [
     "    - Gives attachment to BASE OF TRIANGULAR ARTICULAR DISC",
     "• Apex of disc: Fixed to depression between head of ulna and styloid process",
     "• THE ULNA IS EXCLUDED FROM WRIST JOINT FORMATION"
-])
+], slide_num)
+slide_num += 1
 
 # Slide 19: Anterior Surface - Lower End
 add_content_slide(prs, "Anterior Surface of Lower End", [
@@ -356,7 +455,8 @@ add_content_slide(prs, "Anterior Surface of Lower End", [
     "    - Distal to PRONATOR QUADRATUS",
     "• Important clinical landmark for pulse assessment",
     "• Smooth surface for tendon gliding"
-])
+], slide_num)
+slide_num += 1
 
 # Slide 20: Posterior Surface - Dorsal Tubercle
 add_content_slide(prs, "Posterior Surface - Dorsal Features", [
@@ -368,7 +468,8 @@ add_content_slide(prs, "Posterior Surface - Dorsal Features", [
     "    - EXTENSOR CARPI RADIALIS LONGUS",
     "    - EXTENSOR CARPI RADIALIS BREVIS",
     "    - Ridge intervening between them"
-])
+], slide_num)
+slide_num += 1
 
 # Slide 21: Posterior Surface - Medial Grooves
 add_content_slide(prs, "Posterior Surface - Medial Grooves", [
@@ -380,7 +481,8 @@ add_content_slide(prs, "Posterior Surface - Medial Grooves", [
     "    - Occupied by EXTENSOR DIGITORUM",
     "    - More deeply by EXTENSOR INDICIS",
     "    - Along with POSTERIOR INTEROSSEOUS (deep radial) NERVE"
-])
+], slide_num)
+slide_num += 1
 
 # Slide 22: Posterior Surface - Extensor Retinaculum
 add_content_slide(prs, "Posterior Surface - Additional Structures", [
@@ -391,7 +493,8 @@ add_content_slide(prs, "Posterior Surface - Additional Structures", [
     "    - Deep branch of radial nerve",
     "• Important for hand movement and sensation",
     "• Forms pulley system for extensor tendons"
-])
+], slide_num)
+slide_num += 1
 
 # Slide 23: Inferior Carpal Articular Surface
 add_content_slide(prs, "Inferior Carpal Articular Surface", [
@@ -403,7 +506,8 @@ add_content_slide(prs, "Inferior Carpal Articular Surface", [
     "• Medial area: Articulates with LUNATE",
     "• Together form the RADIO-CARPAL or WRIST JOINT",
     "• Fibrous capsule attached along periphery"
-])
+], slide_num)
+slide_num += 1
 
 # Slide 24: Articular Disc
 add_content_slide(prs, "Articular Disc of Inferior Radio-Ulnar Joint", [
@@ -416,7 +520,8 @@ add_content_slide(prs, "Articular Disc of Inferior Radio-Ulnar Joint", [
     "    - Between inferior articular surface of head of ulna",
     "    - And styloid process of ulna",
     "• Important for stability of radio-ulnar joint"
-])
+], slide_num)
+slide_num += 1
 
 # Slide 25: Side Determination
 add_content_slide(prs, "Side Determination - How to Identify", [
@@ -428,7 +533,8 @@ add_content_slide(prs, "Side Determination - How to Identify", [
     "• These features determine the SIDE OF THE BONE",
     "• Concave shaft surface and lateral styloid process = lateral side",
     "• Clinical importance for identification in anatomy"
-])
+], slide_num)
+slide_num += 1
 
 # Slide 26: Key Articulations
 add_content_slide(prs, "Key Articulations of Radius", [
@@ -439,24 +545,26 @@ add_content_slide(prs, "Key Articulations of Radius", [
     "    - With scaphoid and lunate (wrist/radio-carpal joint)",
     "    - With head of ulna (inferior radio-ulnar joint)",
     "• All joints essential for arm and hand function"
-])
+], slide_num)
+slide_num += 1
 
 # Slide 27: Muscular Attachments Summary
-add_two_column_slide(prs, "Muscular Attachments", [
-    "PROXIMAL ATTACHMENTS:",
-    "• Biceps brachii (tuberosity)",
-    "• Supinator muscle",
-    "• Flexor digitorum superficialis (anterior border)",
-    "• Pronator teres (lateral surface)",
-    "• Flexor pollicis longus (posterior surface)"
-], [
-    "DISTAL ATTACHMENTS:",
-    "• Pronator quadratus (anterior surface)",
-    "• Extensor carpi radialis longus",
-    "• Extensor carpi radialis brevis",
-    "• Extensor pollicis longus",
-    "• Brachioradialis (styloid process)"
-])
+add_two_column_slide(prs, "Muscular Attachments",
+    "PROXIMAL ATTACHMENTS:", [
+        "• Biceps brachii (tuberosity)",
+        "• Supinator muscle",
+        "• Flexor digitorum superficialis (anterior border)",
+        "• Pronator teres (lateral surface)",
+        "• Flexor pollicis longus (posterior surface)"
+    ],
+    "DISTAL ATTACHMENTS:", [
+        "• Pronator quadratus (anterior surface)",
+        "• Extensor carpi radialis longus",
+        "• Extensor carpi radialis brevis",
+        "• Extensor pollicis longus",
+        "• Brachioradialis (styloid process)"
+    ], slide_num)
+slide_num += 1
 
 # Slide 28: Ligamentous Attachments
 add_content_slide(prs, "Ligamentous Attachments", [
@@ -467,7 +575,8 @@ add_content_slide(prs, "Ligamentous Attachments", [
     "• PALMAR RADIO-CARPAL LIGAMENT: Anterior surface",
     "• TRIANGULAR DISC: Inferior radio-ulnar joint",
     "• FIBROUS CAPSULE: Surrounds wrist joint"
-])
+], slide_num)
+slide_num += 1
 
 # Slide 29: Clinical Significance
 add_content_slide(prs, "Clinical Significance", [
@@ -478,7 +587,8 @@ add_content_slide(prs, "Clinical Significance", [
     "• POSTERIOR INTEROSSEOUS NERVE: Can be compressed",
     "• SUPINATION/PRONATION: Compromised with fractures",
     "• WRIST DISORDERS: Affect radio-carpal joint"
-])
+], slide_num)
+slide_num += 1
 
 # Slide 30: Summary & Key Points
 add_content_slide(prs, "Summary - Key Points to Remember", [
@@ -489,10 +599,11 @@ add_content_slide(prs, "Summary - Key Points to Remember", [
     "✓ Dorsal tubercle is important landmark",
     "✓ Ulna is EXCLUDED from wrist joint",
     "✓ Critical for pronation, supination, and hand support"
-])
+], slide_num)
 
 # Save presentation
 output_path = 'Radius_Anatomy_Seminar.pptx'
 prs.save(output_path)
-print(f"Presentation created successfully: {output_path}")
-print(f"Total slides: {len(prs.slides)}")
+print(f"✅ Presentation created successfully!")
+print(f"📊 Total slides: {len(prs.slides)}")
+print(f"💾 File saved as: {output_path}")
