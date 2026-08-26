@@ -1,47 +1,47 @@
+#!/usr/bin/env python3
+"""
+Radius Bone Anatomy - PowerPoint Presentation Generator
+Generates a complete 30-slide professional presentation for anatomy seminars
+"""
+
 from pptx import Presentation
 from pptx.util import Inches, Pt
 from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
 from pptx.dml.color import RGBColor
 from pptx.enum.shapes import MSO_SHAPE
-from pptx.oxml.xmlchemy import OxmlElement
+from datetime import datetime
+import os
 
-def add_animation(shape, effect_type='appear'):
-    """Add animation effects to shapes"""
-    try:
-        # This is a simplified animation setup
-        # Full animation requires XML manipulation
-        pass
-    except:
-        pass
+# Color scheme
+PRIMARY_COLOR = RGBColor(192, 0, 60)      # Pink/Maroon
+SECONDARY_COLOR = RGBColor(100, 149, 237) # Cornflower Blue
+ACCENT_COLOR = RGBColor(220, 20, 60)      # Crimson
+TEXT_COLOR = RGBColor(40, 40, 40)         # Dark Gray
+LIGHT_BG = RGBColor(245, 245, 250)        # Light background
 
-# Create presentation
-prs = Presentation()
-prs.slide_width = Inches(10)
-prs.slide_height = Inches(7.5)
-
-# Define color scheme
-PRIMARY_COLOR = RGBColor(192, 0, 60)  # Pink/Maroon
-SECONDARY_COLOR = RGBColor(100, 149, 237)  # Cornflower Blue
-ACCENT_COLOR = RGBColor(220, 20, 60)  # Crimson
-TEXT_COLOR = RGBColor(40, 40, 40)  # Dark Gray
-LIGHT_BG = RGBColor(245, 245, 250)
+def create_presentation():
+    """Create and return a presentation object"""
+    prs = Presentation()
+    prs.slide_width = Inches(10)
+    prs.slide_height = Inches(7.5)
+    return prs
 
 def add_title_slide(prs, title, subtitle):
-    """Add title slide"""
+    """Add title slide with branding"""
     slide = prs.slides.add_slide(prs.slide_layouts[6])
     background = slide.background
     fill = background.fill
     fill.solid()
     fill.fore_color.rgb = PRIMARY_COLOR
     
-    # Decorative shape
+    # Decorative top bar
     shape1 = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, 
                                      Inches(0), Inches(0), Inches(10), Inches(1.5))
     shape1.fill.solid()
     shape1.fill.fore_color.rgb = ACCENT_COLOR
     shape1.line.color.rgb = ACCENT_COLOR
     
-    # Title
+    # Main title
     title_box = slide.shapes.add_textbox(Inches(0.5), Inches(2.5), Inches(9), Inches(1.5))
     title_frame = title_box.text_frame
     title_frame.word_wrap = True
@@ -66,8 +66,8 @@ def add_title_slide(prs, title, subtitle):
     footer_box = slide.shapes.add_textbox(Inches(0.5), Inches(6.8), Inches(9), Inches(0.5))
     footer_frame = footer_box.text_frame
     p = footer_frame.paragraphs[0]
-    p.text = "Essentials of Human Osteology"
-    p.font.size = Pt(20)
+    p.text = "Essentials of Human Osteology - Chapter 4: Appendicular Skeleton"
+    p.font.size = Pt(16)
     p.font.italic = True
     p.font.color.rgb = RGBColor(200, 200, 200)
     p.alignment = PP_ALIGN.CENTER
@@ -75,21 +75,20 @@ def add_title_slide(prs, title, subtitle):
     return slide
 
 def add_content_slide(prs, title, content_list, slide_number=None):
-    """Add content slide with bullet points"""
+    """Add content slide with bullet points and formatting"""
     slide = prs.slides.add_slide(prs.slide_layouts[6])
     background = slide.background
     fill = background.fill
     fill.solid()
     fill.fore_color.rgb = LIGHT_BG
     
-    # Add title bar
+    # Title bar
     title_shape = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, 
                                           Inches(0), Inches(0), Inches(10), Inches(0.9))
     title_shape.fill.solid()
     title_shape.fill.fore_color.rgb = PRIMARY_COLOR
     title_shape.line.color.rgb = PRIMARY_COLOR
     
-    # Title text
     title_frame = title_shape.text_frame
     title_frame.vertical_anchor = MSO_ANCHOR.MIDDLE
     p = title_frame.paragraphs[0]
@@ -129,7 +128,7 @@ def add_content_slide(prs, title, content_list, slide_number=None):
         p.space_after = Pt(8)
         p.line_spacing = 1.3
     
-    # Add decorative line at bottom
+    # Bottom decorative line
     line = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, 
                                    Inches(0.5), Inches(7.3), Inches(9), Inches(0.05))
     line.fill.solid()
@@ -139,14 +138,14 @@ def add_content_slide(prs, title, content_list, slide_number=None):
     return slide
 
 def add_two_column_slide(prs, title, left_title, left_content, right_title, right_content, slide_number=None):
-    """Add two-column layout slide"""
+    """Add two-column comparison slide"""
     slide = prs.slides.add_slide(prs.slide_layouts[6])
     background = slide.background
     fill = background.fill
     fill.solid()
     fill.fore_color.rgb = LIGHT_BG
     
-    # Add title bar
+    # Title bar
     title_shape = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE,
                                           Inches(0), Inches(0), Inches(10), Inches(0.9))
     title_shape.fill.solid()
@@ -222,388 +221,436 @@ def add_two_column_slide(prs, title, left_title, left_content, right_title, righ
     
     return slide
 
-# ============= SLIDE CONTENT =============
-
-slide_num = 1
-
-# Slide 1: Title Slide
-add_title_slide(prs, "THE RADIUS BONE", "Comprehensive Anatomy Guide for Students")
-slide_num += 1
-
-# Slide 2: Introduction
-add_content_slide(prs, "Introduction to the Radius", [
-    "• The radius is the LATERAL bone of the forearm",
-    "• Pre-axial bone of lower limb",
-    "• Corresponds with the tibia",
-    "• Forms the lateral (thumb) side of forearm",
-    "• Works with ulna for pronation and supination",
-    "• Key articulation with humerus (elbow joint)"
-], slide_num)
-slide_num += 1
-
-# Slide 3: General Overview
-add_content_slide(prs, "Basic Structure", [
-    "• Three main regions:",
-    "    1. Upper (proximal) end",
-    "    2. Shaft (diaphysis)",
-    "    3. Lower (distal) end",
-    "• Functions:",
-    "    - Articulates with humerus at elbow",
-    "    - Rotates around ulna",
-    "    - Supports wrist and hand"
-], slide_num)
-slide_num += 1
-
-# Slide 4: Upper End - Overview
-add_content_slide(prs, "Upper End (Proximal End)", [
-    "• Consists of three parts:",
-    "    1. Head (caput radii)",
-    "    2. Neck",
-    "    3. Radial tuberosity",
-    "• Articulates with humerus and ulna",
-    "• Supports pronation and supination"
-], slide_num)
-slide_num += 1
-
-# Slide 5: The Radial Head
-add_content_slide(prs, "The Radial Head (Caput)", [
-    "• DISC-LIKE structure with concave upper surface",
-    "• Peripheral margin broader on MEDIAL side",
-    "• Upper surface: Articulates with capitulum of humerus",
-    "• Forms humero-radial part of elbow joint",
-    "• Peripheral margin: Articulates medially with radial notch of ulna",
-    "• Rest of margin: Encircled by annular ligament",
-    "• Forms superior radio-ulnar joint"
-], slide_num)
-slide_num += 1
-
-# Slide 6: Radial Head Details
-add_content_slide(prs, "Radial Head - Articular Surfaces", [
-    "• Concave disc-like upper surface",
-    "    - Articulates with capitulum of humerus",
-    "• Peripheral margin",
-    "    - Broader on medial side",
-    "    - Articulates with radial notch of ulna",
-    "• Annular ligament encircles the margin",
-    "• Posterior surface palpable in lateral depressed area",
-    "• Moves during pronation and supination of forearm"
-], slide_num)
-slide_num += 1
-
-# Slide 7: Neck of Radius
-add_content_slide(prs, "The Neck (Collum)", [
-    "• Constricted area below the head",
-    "• Encircled by lower part of annular ligament",
-    "• Separated by synovial protrusion of superior radio-ulnar joint",
-    "• Supported by QUADRATE LIGAMENT",
-    "• Derived from interlacement of distal border of annular ligament",
-    "• Provides attachment points for supporting structures"
-], slide_num)
-slide_num += 1
-
-# Slide 8: Radial Tuberosity
-add_content_slide(prs, "Radial Tuberosity", [
-    "• Located on MEDIAL side of lower part of neck",
-    "• TWO distinct parts:",
-    "    1. POSTERIOR part: Rough surface",
-    "       - Receives insertion of TENDON OF BICEPS BRACHII",
-    "       - Twisted manner of insertion",
-    "    2. ANTERIOR part: Smooth surface",
-    "       - Separated from biceps tendon by bursa",
-    "       - Bursa for supination of forearm",
-    "• Lower end: Attachment to OBLIQUE CORD"
-], slide_num)
-slide_num += 1
-
-# Slide 9: Shaft Overview
-add_content_slide(prs, "The Shaft (Diaphysis)", [
-    "• TRIANGULAR on cross-section in middle third",
-    "• THREE BORDERS:",
-    "    1. Anterior border",
-    "    2. Posterior border",
-    "    3. Interosseous (medial) border",
-    "• THREE SURFACES:",
-    "    1. Anterior surface",
-    "    2. Posterior surface",
-    "    3. Lateral surface"
-], slide_num)
-slide_num += 1
-
-# Slide 10: Anterior Border
-add_content_slide(prs, "Anterior Border", [
-    "• OBLIQUE in upper part",
-    "• Slopes downward and laterally from radial tuberosity",
-    "• Lower part: VERTICAL",
-    "• Extends as prominent ridge in distal fourth of shaft",
-    "• Continuous with anterior border of styloid process",
-    "• UPPER OBLIQUE BORDER:",
-    "    - Gives origin to RADIAL HEAD OF FLEXOR DIGITORUM SUPERFICIALIS",
-    "• LOWER VERTICAL RIDGE:",
-    "    - Attachment to lateral end of EXTENSOR RETINACULUM"
-], slide_num)
-slide_num += 1
-
-# Slide 11: Posterior Border
-add_content_slide(prs, "Posterior Border", [
-    "• PROMINENT in middle third",
-    "• ILL-DEFINED in upper and lower parts",
-    "• Traced above: Slopes upward and medially",
-    "• Reaches: POSTERO-INFERIOR part of radial tuberosity",
-    "• Provides attachment for muscular structures",
-    "• Important landmark for anatomical identification"
-], slide_num)
-slide_num += 1
-
-# Slide 12: Interosseous Border
-add_content_slide(prs, "Interosseous (Medial) Border", [
-    "• SHARP border",
-    "• Extends from below radial tuberosity to lower end",
-    "• Connected to ulna by INTEROSSEOUS MEMBRANE",
-    "• Upper margin: FREE",
-    "• Gap between radius and oblique cord:",
-    "    - Transmits POSTERIOR INTEROSSEOUS VESSELS",
-    "    - NOT the nerves",
-    "• Lower margin: Continuous with capsule ligament",
-    "    - INFERIOR RADIO-ULNAR JOINT"
-], slide_num)
-slide_num += 1
-
-# Slide 13: Anterior Surface
-add_content_slide(prs, "Anterior Surface of Shaft", [
-    "• Intervenes between anterior and interosseous borders",
-    "• GENTLY CONCAVE",
-    "• Nutrient foramen location:",
-    "    - Pointing towards elbow",
-    "    - Situated near middle of shaft",
-    "• Attachment points for muscles",
-    "• Important for fluid dynamics during pronation"
-], slide_num)
-slide_num += 1
-
-# Slide 14: Posterior Surface
-add_content_slide(prs, "Posterior Surface of Shaft", [
-    "• Between posterior and interosseous borders",
-    "• Gives origin to FLEXOR POLLICIS LONGUS",
-    "• Lower one-fourth:",
-    "    - Surface gives origin to flexor pollicis longus",
-    "• Upper two-thirds:",
-    "    - Anterior surface along with triangular medial area",
-    "    - In front of interosseous membrane",
-    "    - Insertion to PRONATOR QUADRATUS"
-], slide_num)
-slide_num += 1
-
-# Slide 15: Lateral Surface
-add_content_slide(prs, "Lateral Surface of Shaft", [
-    "• GENTLY CONVEX",
-    "• Summit at middle of shaft",
-    "• Presents rough impressions",
-    "• Upper part: Encrouches impression for PRONATOR TERES insertion",
-    "• Receives insertion of SUPINATOR muscle",
-    "• Deep part of supinator muscle attachment",
-    "• Contains deep branch of RADIAL NERVE (posterior interosseous nerve)"
-], slide_num)
-slide_num += 1
-
-# Slide 16: Lower End - Overview
-add_content_slide(prs, "Lower End (Distal End) - Overview", [
-    "• WIDEST part of the bone",
-    "• Presents FOUR surfaces:",
-    "    1. Lateral (Styloid process)",
-    "    2. Medial (Ulnar notch)",
-    "    3. Anterior",
-    "    4. Posterior (with grooves)",
-    "• INFERIOR CARPAL ARTICULAR SURFACE",
-    "• Important for wrist and hand movement"
-], slide_num)
-slide_num += 1
-
-# Slide 17: Lateral Surface - Styloid Process
-add_content_slide(prs, "Lateral Surface - Styloid Process", [
-    "• ROUGH surface",
-    "• Projects downward as STYLOID PROCESS",
-    "• Extends BEYOND styloid process of ulna",
-    "• Styloid process tip: Attachment to LATERAL CARPAL LIGAMENT",
-    "• Proximal to styloid process:",
-    "    - Receives insertion of BRACHIORADIALIS",
-    "    - Crossed obliquely by ABDUCTOR POLLICIS LONGUS",
-    "    - Crossed by EXTENSOR POLLICIS BREVIS tendons"
-], slide_num)
-slide_num += 1
-
-# Slide 18: Medial Surface - Ulnar Notch
-add_content_slide(prs, "Medial Surface - Ulnar Notch", [
-    "• Distal to triangular area for deep pronator quadratus fibers",
-    "• Presents ULNAR NOTCH",
-    "    - For articulation with HEAD OF ULNA",
-    "    - Forms INFERIOR RADIO-ULNAR JOINT",
-    "• Junction point:",
-    "    - Between ulnar notch and carpal articular surface",
-    "    - Gives attachment to BASE OF TRIANGULAR ARTICULAR DISC",
-    "• Apex of disc: Fixed to depression between head of ulna and styloid process",
-    "• THE ULNA IS EXCLUDED FROM WRIST JOINT FORMATION"
-], slide_num)
-slide_num += 1
-
-# Slide 19: Anterior Surface - Lower End
-add_content_slide(prs, "Anterior Surface of Lower End", [
-    "• Represented by THICK PROMINENT RIDGE",
-    "• PALPABLE through overlying tendons",
-    "• Attachment to PALMAR RADIO-CARPAL LIGAMENT",
-    "• PULSATION OF RADIAL ARTERY:",
-    "    - Felt against this surface",
-    "    - Distal to PRONATOR QUADRATUS",
-    "• Important clinical landmark for pulse assessment",
-    "• Smooth surface for tendon gliding"
-], slide_num)
-slide_num += 1
-
-# Slide 20: Posterior Surface - Dorsal Tubercle
-add_content_slide(prs, "Posterior Surface - Dorsal Features", [
-    "• PALPABLE DORSAL TUBERCLE (of Lister)",
-    "• Displays THREE LONGITUDINAL GROOVES:",
-    "    1. LATERAL groove: Wide, lateral to dorsal tubercle",
-    "    2. TWO MEDIAL grooves: Medial to tubercle",
-    "• Lateral groove lodges:",
-    "    - EXTENSOR CARPI RADIALIS LONGUS",
-    "    - EXTENSOR CARPI RADIALIS BREVIS",
-    "    - Ridge intervening between them"
-], slide_num)
-slide_num += 1
-
-# Slide 21: Posterior Surface - Medial Grooves
-add_content_slide(prs, "Posterior Surface - Medial Grooves", [
-    "• Groove just medial to dorsal tubercle:",
-    "    - CONSPICUOUS groove",
-    "    - Transmits tendon of EXTENSOR POLLICIS LONGUS",
-    "    - Uses dorsal tubercle as pulley before reaching thumb",
-    "• Groove more medially (shallow):",
-    "    - Occupied by EXTENSOR DIGITORUM",
-    "    - More deeply by EXTENSOR INDICIS",
-    "    - Along with POSTERIOR INTEROSSEOUS (deep radial) NERVE"
-], slide_num)
-slide_num += 1
-
-# Slide 22: Posterior Surface - Extensor Retinaculum
-add_content_slide(prs, "Posterior Surface - Additional Structures", [
-    "• ALL structures above pass beneath EXTENSOR RETINACULUM",
-    "• Gives slip of attachment to dorsal tubercle",
-    "• Structures crossing this surface:",
-    "    - Multiple extensor tendons",
-    "    - Deep branch of radial nerve",
-    "• Important for hand movement and sensation",
-    "• Forms pulley system for extensor tendons"
-], slide_num)
-slide_num += 1
-
-# Slide 23: Inferior Carpal Articular Surface
-add_content_slide(prs, "Inferior Carpal Articular Surface", [
-    "• CONCAVE surface",
-    "• SUBDIVIDED by ridge into:",
-    "    1. LATERAL triangular area",
-    "    2. MEDIAL quadrilateral area",
-    "• Lateral area: Articulates with SCAPHOID",
-    "• Medial area: Articulates with LUNATE",
-    "• Together form the RADIO-CARPAL or WRIST JOINT",
-    "• Fibrous capsule attached along periphery"
-], slide_num)
-slide_num += 1
-
-# Slide 24: Articular Disc
-add_content_slide(prs, "Articular Disc of Inferior Radio-Ulnar Joint", [
-    "• TRIANGULAR FIBROUS DISC",
-    "• Attached along periphery of carpal articular surface",
-    "• At ulnar notch of radius:",
-    "    - Attached to anterior and posterior margins",
-    "    - Attached to articular disc of inferior radio-ulnar joint",
-    "• Apex fixed to depression:",
-    "    - Between inferior articular surface of head of ulna",
-    "    - And styloid process of ulna",
-    "• Important for stability of radio-ulnar joint"
-], slide_num)
-slide_num += 1
-
-# Slide 25: Side Determination
-add_content_slide(prs, "Side Determination - How to Identify", [
-    "• DISC-LIKE HEAD OF RADIUS",
-    "    - Place above",
-    "    - Gentle concavity of shaft in FRONT",
-    "• STYLOID PROCESS",
-    "    - Projects LATERALLY",
-    "• These features determine the SIDE OF THE BONE",
-    "• Concave shaft surface and lateral styloid process = lateral side",
-    "• Clinical importance for identification in anatomy"
-], slide_num)
-slide_num += 1
-
-# Slide 26: Key Articulations
-add_content_slide(prs, "Key Articulations of Radius", [
-    "• PROXIMAL ARTICULATIONS:",
-    "    - With capitulum of humerus (humero-radial joint)",
-    "    - With radial notch of ulna (superior radio-ulnar joint)",
-    "• DISTAL ARTICULATIONS:",
-    "    - With scaphoid and lunate (wrist/radio-carpal joint)",
-    "    - With head of ulna (inferior radio-ulnar joint)",
-    "• All joints essential for arm and hand function"
-], slide_num)
-slide_num += 1
-
-# Slide 27: Muscular Attachments Summary
-add_two_column_slide(prs, "Muscular Attachments",
-    "PROXIMAL ATTACHMENTS:", [
-        "• Biceps brachii (tuberosity)",
-        "• Supinator muscle",
-        "• Flexor digitorum superficialis (anterior border)",
-        "• Pronator teres (lateral surface)",
-        "• Flexor pollicis longus (posterior surface)"
-    ],
-    "DISTAL ATTACHMENTS:", [
-        "• Pronator quadratus (anterior surface)",
-        "• Extensor carpi radialis longus",
-        "• Extensor carpi radialis brevis",
-        "• Extensor pollicis longus",
-        "• Brachioradialis (styloid process)"
+def main():
+    """Main function to create presentation"""
+    print("🚀 Starting Radius Anatomy PowerPoint Generator...")
+    print(f"📅 Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    
+    prs = create_presentation()
+    slide_num = 1
+    
+    # Slide 1: Title Slide
+    print(f"Creating slide {slide_num}: Title Slide")
+    add_title_slide(prs, "THE RADIUS BONE", "Comprehensive Anatomy Guide for Students")
+    slide_num += 1
+    
+    # Slide 2: Introduction
+    print(f"Creating slide {slide_num}: Introduction")
+    add_content_slide(prs, "Introduction to the Radius", [
+        "• The radius is the LATERAL bone of the forearm",
+        "• Pre-axial bone of lower limb",
+        "• Corresponds with the tibia",
+        "• Forms the lateral (thumb) side of forearm",
+        "• Works with ulna for pronation and supination",
+        "• Key articulation with humerus (elbow joint)"
     ], slide_num)
-slide_num += 1
+    slide_num += 1
+    
+    # Slide 3: Basic Structure
+    print(f"Creating slide {slide_num}: Basic Structure")
+    add_content_slide(prs, "Basic Structure", [
+        "• Three main regions:",
+        "    1. Upper (proximal) end",
+        "    2. Shaft (diaphysis)",
+        "    3. Lower (distal) end",
+        "• Functions:",
+        "    - Articulates with humerus at elbow",
+        "    - Rotates around ulna",
+        "    - Supports wrist and hand"
+    ], slide_num)
+    slide_num += 1
+    
+    # Slide 4: Upper End Overview
+    print(f"Creating slide {slide_num}: Upper End Overview")
+    add_content_slide(prs, "Upper End (Proximal End)", [
+        "• Consists of three parts:",
+        "    1. Head (caput radii)",
+        "    2. Neck",
+        "    3. Radial tuberosity",
+        "• Articulates with humerus and ulna",
+        "• Supports pronation and supination"
+    ], slide_num)
+    slide_num += 1
+    
+    # Slide 5: Radial Head
+    print(f"Creating slide {slide_num}: Radial Head")
+    add_content_slide(prs, "The Radial Head (Caput)", [
+        "• DISC-LIKE structure with concave upper surface",
+        "• Peripheral margin broader on MEDIAL side",
+        "• Upper surface: Articulates with capitulum of humerus",
+        "• Forms humero-radial part of elbow joint",
+        "• Peripheral margin: Articulates medially with radial notch of ulna",
+        "• Rest of margin: Encircled by annular ligament",
+        "• Forms superior radio-ulnar joint"
+    ], slide_num)
+    slide_num += 1
+    
+    # Slide 6: Radial Head Details
+    print(f"Creating slide {slide_num}: Radial Head Details")
+    add_content_slide(prs, "Radial Head - Articular Surfaces", [
+        "• Concave disc-like upper surface",
+        "    - Articulates with capitulum of humerus",
+        "• Peripheral margin",
+        "    - Broader on medial side",
+        "    - Articulates with radial notch of ulna",
+        "• Annular ligament encircles the margin",
+        "• Posterior surface palpable in lateral depressed area",
+        "• Moves during pronation and supination of forearm"
+    ], slide_num)
+    slide_num += 1
+    
+    # Slide 7: Neck of Radius
+    print(f"Creating slide {slide_num}: Neck of Radius")
+    add_content_slide(prs, "The Neck (Collum)", [
+        "• Constricted area below the head",
+        "• Encircled by lower part of annular ligament",
+        "• Separated by synovial protrusion of superior radio-ulnar joint",
+        "• Supported by QUADRATE LIGAMENT",
+        "• Derived from interlacement of distal border of annular ligament",
+        "• Provides attachment points for supporting structures"
+    ], slide_num)
+    slide_num += 1
+    
+    # Slide 8: Radial Tuberosity
+    print(f"Creating slide {slide_num}: Radial Tuberosity")
+    add_content_slide(prs, "Radial Tuberosity", [
+        "• Located on MEDIAL side of lower part of neck",
+        "• TWO distinct parts:",
+        "    1. POSTERIOR part: Rough surface",
+        "       - Receives insertion of TENDON OF BICEPS BRACHII",
+        "       - Twisted manner of insertion",
+        "    2. ANTERIOR part: Smooth surface",
+        "       - Separated from biceps tendon by bursa",
+        "       - Bursa for supination of forearm",
+        "• Lower end: Attachment to OBLIQUE CORD"
+    ], slide_num)
+    slide_num += 1
+    
+    # Slide 9: Shaft Overview
+    print(f"Creating slide {slide_num}: Shaft Overview")
+    add_content_slide(prs, "The Shaft (Diaphysis)", [
+        "• TRIANGULAR on cross-section in middle third",
+        "• THREE BORDERS:",
+        "    1. Anterior border",
+        "    2. Posterior border",
+        "    3. Interosseous (medial) border",
+        "• THREE SURFACES:",
+        "    1. Anterior surface",
+        "    2. Posterior surface",
+        "    3. Lateral surface"
+    ], slide_num)
+    slide_num += 1
+    
+    # Slide 10: Anterior Border
+    print(f"Creating slide {slide_num}: Anterior Border")
+    add_content_slide(prs, "Anterior Border", [
+        "• OBLIQUE in upper part",
+        "• Slopes downward and laterally from radial tuberosity",
+        "• Lower part: VERTICAL",
+        "• Extends as prominent ridge in distal fourth of shaft",
+        "• Continuous with anterior border of styloid process",
+        "• UPPER OBLIQUE BORDER:",
+        "    - Gives origin to RADIAL HEAD OF FLEXOR DIGITORUM SUPERFICIALIS",
+        "• LOWER VERTICAL RIDGE:",
+        "    - Attachment to lateral end of EXTENSOR RETINACULUM"
+    ], slide_num)
+    slide_num += 1
+    
+    # Slide 11: Posterior Border
+    print(f"Creating slide {slide_num}: Posterior Border")
+    add_content_slide(prs, "Posterior Border", [
+        "• PROMINENT in middle third",
+        "• ILL-DEFINED in upper and lower parts",
+        "• Traced above: Slopes upward and medially",
+        "• Reaches: POSTERO-INFERIOR part of radial tuberosity",
+        "• Provides attachment for muscular structures",
+        "• Important landmark for anatomical identification"
+    ], slide_num)
+    slide_num += 1
+    
+    # Slide 12: Interosseous Border
+    print(f"Creating slide {slide_num}: Interosseous Border")
+    add_content_slide(prs, "Interosseous (Medial) Border", [
+        "• SHARP border",
+        "• Extends from below radial tuberosity to lower end",
+        "• Connected to ulna by INTEROSSEOUS MEMBRANE",
+        "• Upper margin: FREE",
+        "• Gap between radius and oblique cord:",
+        "    - Transmits POSTERIOR INTEROSSEOUS VESSELS",
+        "    - NOT the nerves",
+        "• Lower margin: Continuous with capsule ligament",
+        "    - INFERIOR RADIO-ULNAR JOINT"
+    ], slide_num)
+    slide_num += 1
+    
+    # Slide 13: Anterior Surface
+    print(f"Creating slide {slide_num}: Anterior Surface")
+    add_content_slide(prs, "Anterior Surface of Shaft", [
+        "• Intervenes between anterior and interosseous borders",
+        "• GENTLY CONCAVE",
+        "• Nutrient foramen location:",
+        "    - Pointing towards elbow",
+        "    - Situated near middle of shaft",
+        "• Attachment points for muscles",
+        "• Important for fluid dynamics during pronation"
+    ], slide_num)
+    slide_num += 1
+    
+    # Slide 14: Posterior Surface
+    print(f"Creating slide {slide_num}: Posterior Surface")
+    add_content_slide(prs, "Posterior Surface of Shaft", [
+        "• Between posterior and interosseous borders",
+        "• Gives origin to FLEXOR POLLICIS LONGUS",
+        "• Lower one-fourth:",
+        "    - Surface gives origin to flexor pollicis longus",
+        "• Upper two-thirds:",
+        "    - Anterior surface along with triangular medial area",
+        "    - In front of interosseous membrane",
+        "    - Insertion to PRONATOR QUADRATUS"
+    ], slide_num)
+    slide_num += 1
+    
+    # Slide 15: Lateral Surface
+    print(f"Creating slide {slide_num}: Lateral Surface")
+    add_content_slide(prs, "Lateral Surface of Shaft", [
+        "• GENTLY CONVEX",
+        "• Summit at middle of shaft",
+        "• Presents rough impressions",
+        "• Upper part: Encrouches impression for PRONATOR TERES insertion",
+        "• Receives insertion of SUPINATOR muscle",
+        "• Deep part of supinator muscle attachment",
+        "• Contains deep branch of RADIAL NERVE (posterior interosseous nerve)"
+    ], slide_num)
+    slide_num += 1
+    
+    # Slide 16: Lower End Overview
+    print(f"Creating slide {slide_num}: Lower End Overview")
+    add_content_slide(prs, "Lower End (Distal End) - Overview", [
+        "• WIDEST part of the bone",
+        "• Presents FOUR surfaces:",
+        "    1. Lateral (Styloid process)",
+        "    2. Medial (Ulnar notch)",
+        "    3. Anterior",
+        "    4. Posterior (with grooves)",
+        "• INFERIOR CARPAL ARTICULAR SURFACE",
+        "• Important for wrist and hand movement"
+    ], slide_num)
+    slide_num += 1
+    
+    # Slide 17: Styloid Process
+    print(f"Creating slide {slide_num}: Styloid Process")
+    add_content_slide(prs, "Lateral Surface - Styloid Process", [
+        "• ROUGH surface",
+        "• Projects downward as STYLOID PROCESS",
+        "• Extends BEYOND styloid process of ulna",
+        "• Styloid process tip: Attachment to LATERAL CARPAL LIGAMENT",
+        "• Proximal to styloid process:",
+        "    - Receives insertion of BRACHIORADIALIS",
+        "    - Crossed obliquely by ABDUCTOR POLLICIS LONGUS",
+        "    - Crossed by EXTENSOR POLLICIS BREVIS tendons"
+    ], slide_num)
+    slide_num += 1
+    
+    # Slide 18: Ulnar Notch
+    print(f"Creating slide {slide_num}: Ulnar Notch")
+    add_content_slide(prs, "Medial Surface - Ulnar Notch", [
+        "• Distal to triangular area for deep pronator quadratus fibers",
+        "• Presents ULNAR NOTCH",
+        "    - For articulation with HEAD OF ULNA",
+        "    - Forms INFERIOR RADIO-ULNAR JOINT",
+        "• Junction point:",
+        "    - Between ulnar notch and carpal articular surface",
+        "    - Gives attachment to BASE OF TRIANGULAR ARTICULAR DISC",
+        "• Apex of disc: Fixed to depression between head of ulna and styloid process",
+        "• THE ULNA IS EXCLUDED FROM WRIST JOINT FORMATION"
+    ], slide_num)
+    slide_num += 1
+    
+    # Slide 19: Anterior Surface Lower End
+    print(f"Creating slide {slide_num}: Anterior Surface Lower End")
+    add_content_slide(prs, "Anterior Surface of Lower End", [
+        "• Represented by THICK PROMINENT RIDGE",
+        "• PALPABLE through overlying tendons",
+        "• Attachment to PALMAR RADIO-CARPAL LIGAMENT",
+        "• PULSATION OF RADIAL ARTERY:",
+        "    - Felt against this surface",
+        "    - Distal to PRONATOR QUADRATUS",
+        "• Important clinical landmark for pulse assessment",
+        "• Smooth surface for tendon gliding"
+    ], slide_num)
+    slide_num += 1
+    
+    # Slide 20: Dorsal Tubercle
+    print(f"Creating slide {slide_num}: Dorsal Tubercle")
+    add_content_slide(prs, "Posterior Surface - Dorsal Features", [
+        "• PALPABLE DORSAL TUBERCLE (of Lister)",
+        "• Displays THREE LONGITUDINAL GROOVES:",
+        "    1. LATERAL groove: Wide, lateral to dorsal tubercle",
+        "    2. TWO MEDIAL grooves: Medial to tubercle",
+        "• Lateral groove lodges:",
+        "    - EXTENSOR CARPI RADIALIS LONGUS",
+        "    - EXTENSOR CARPI RADIALIS BREVIS",
+        "    - Ridge intervening between them"
+    ], slide_num)
+    slide_num += 1
+    
+    # Slide 21: Posterior Medial Grooves
+    print(f"Creating slide {slide_num}: Posterior Medial Grooves")
+    add_content_slide(prs, "Posterior Surface - Medial Grooves", [
+        "• Groove just medial to dorsal tubercle:",
+        "    - CONSPICUOUS groove",
+        "    - Transmits tendon of EXTENSOR POLLICIS LONGUS",
+        "    - Uses dorsal tubercle as pulley before reaching thumb",
+        "• Groove more medially (shallow):",
+        "    - Occupied by EXTENSOR DIGITORUM",
+        "    - More deeply by EXTENSOR INDICIS",
+        "    - Along with POSTERIOR INTEROSSEOUS (deep radial) NERVE"
+    ], slide_num)
+    slide_num += 1
+    
+    # Slide 22: Extensor Retinaculum
+    print(f"Creating slide {slide_num}: Extensor Retinaculum")
+    add_content_slide(prs, "Posterior Surface - Additional Structures", [
+        "• ALL structures above pass beneath EXTENSOR RETINACULUM",
+        "• Gives slip of attachment to dorsal tubercle",
+        "• Structures crossing this surface:",
+        "    - Multiple extensor tendons",
+        "    - Deep branch of radial nerve",
+        "• Important for hand movement and sensation",
+        "• Forms pulley system for extensor tendons"
+    ], slide_num)
+    slide_num += 1
+    
+    # Slide 23: Carpal Articular Surface
+    print(f"Creating slide {slide_num}: Carpal Articular Surface")
+    add_content_slide(prs, "Inferior Carpal Articular Surface", [
+        "• CONCAVE surface",
+        "• SUBDIVIDED by ridge into:",
+        "    1. LATERAL triangular area",
+        "    2. MEDIAL quadrilateral area",
+        "• Lateral area: Articulates with SCAPHOID",
+        "• Medial area: Articulates with LUNATE",
+        "• Together form the RADIO-CARPAL or WRIST JOINT",
+        "• Fibrous capsule attached along periphery"
+    ], slide_num)
+    slide_num += 1
+    
+    # Slide 24: Articular Disc
+    print(f"Creating slide {slide_num}: Articular Disc")
+    add_content_slide(prs, "Articular Disc of Inferior Radio-Ulnar Joint", [
+        "• TRIANGULAR FIBROUS DISC",
+        "• Attached along periphery of carpal articular surface",
+        "• At ulnar notch of radius:",
+        "    - Attached to anterior and posterior margins",
+        "    - Attached to articular disc of inferior radio-ulnar joint",
+        "• Apex fixed to depression:",
+        "    - Between inferior articular surface of head of ulna",
+        "    - And styloid process of ulna",
+        "• Important for stability of radio-ulnar joint"
+    ], slide_num)
+    slide_num += 1
+    
+    # Slide 25: Side Determination
+    print(f"Creating slide {slide_num}: Side Determination")
+    add_content_slide(prs, "Side Determination - How to Identify", [
+        "• DISC-LIKE HEAD OF RADIUS",
+        "    - Place above",
+        "    - Gentle concavity of shaft in FRONT",
+        "• STYLOID PROCESS",
+        "    - Projects LATERALLY",
+        "• These features determine the SIDE OF THE BONE",
+        "• Concave shaft surface and lateral styloid process = lateral side",
+        "• Clinical importance for identification in anatomy"
+    ], slide_num)
+    slide_num += 1
+    
+    # Slide 26: Key Articulations
+    print(f"Creating slide {slide_num}: Key Articulations")
+    add_content_slide(prs, "Key Articulations of Radius", [
+        "• PROXIMAL ARTICULATIONS:",
+        "    - With capitulum of humerus (humero-radial joint)",
+        "    - With radial notch of ulna (superior radio-ulnar joint)",
+        "• DISTAL ARTICULATIONS:",
+        "    - With scaphoid and lunate (wrist/radio-carpal joint)",
+        "    - With head of ulna (inferior radio-ulnar joint)",
+        "• All joints essential for arm and hand function"
+    ], slide_num)
+    slide_num += 1
+    
+    # Slide 27: Muscular Attachments
+    print(f"Creating slide {slide_num}: Muscular Attachments")
+    add_two_column_slide(prs, "Muscular Attachments",
+        "PROXIMAL ATTACHMENTS:", [
+            "• Biceps brachii (tuberosity)",
+            "• Supinator muscle",
+            "• Flexor digitorum superficialis (anterior border)",
+            "• Pronator teres (lateral surface)",
+            "• Flexor pollicis longus (posterior surface)"
+        ],
+        "DISTAL ATTACHMENTS:", [
+            "• Pronator quadratus (anterior surface)",
+            "• Extensor carpi radialis longus",
+            "• Extensor carpi radialis brevis",
+            "• Extensor pollicis longus",
+            "• Brachioradialis (styloid process)"
+        ], slide_num)
+    slide_num += 1
+    
+    # Slide 28: Ligamentous Attachments
+    print(f"Creating slide {slide_num}: Ligamentous Attachments")
+    add_content_slide(prs, "Ligamentous Attachments", [
+        "• ANNULAR LIGAMENT: Encircles radial head and neck",
+        "• QUADRATE LIGAMENT: Supports neck",
+        "• INTEROSSEOUS MEMBRANE: Connects to ulna",
+        "• LATERAL CARPAL LIGAMENT: Attaches to styloid process",
+        "• PALMAR RADIO-CARPAL LIGAMENT: Anterior surface",
+        "• TRIANGULAR DISC: Inferior radio-ulnar joint",
+        "• FIBROUS CAPSULE: Surrounds wrist joint"
+    ], slide_num)
+    slide_num += 1
+    
+    # Slide 29: Clinical Significance
+    print(f"Creating slide {slide_num}: Clinical Significance")
+    add_content_slide(prs, "Clinical Significance", [
+        "• RADIAL PULSE: Palpated on anterior surface near wrist",
+        "• COLLES' FRACTURE: Common distal radius fracture",
+        "• SMITH'S FRACTURE: Reverse of Colles' fracture",
+        "• MONTEGGIA FRACTURE: Radius fracture + ulnar dislocation",
+        "• POSTERIOR INTEROSSEOUS NERVE: Can be compressed",
+        "• SUPINATION/PRONATION: Compromised with fractures",
+        "• WRIST DISORDERS: Affect radio-carpal joint"
+    ], slide_num)
+    slide_num += 1
+    
+    # Slide 30: Summary
+    print(f"Creating slide {slide_num}: Summary")
+    add_content_slide(prs, "Summary - Key Points to Remember", [
+        "✓ Radius is LATERAL bone of forearm",
+        "✓ Three regions: Head, Shaft, Styloid process",
+        "✓ Articulates with HUMERUS, ULNA, and CARPAL BONES",
+        "✓ Styloid process extends BEYOND ulna styloid",
+        "✓ Dorsal tubercle is important landmark",
+        "✓ Ulna is EXCLUDED from wrist joint",
+        "✓ Critical for pronation, supination, and hand support"
+    ], slide_num)
+    slide_num += 1
+    
+    # Save presentation
+    output_file = 'Radius_Anatomy_Seminar.pptx'
+    prs.save(output_file)
+    
+    print(f"\n✅ Presentation created successfully!")
+    print(f"📊 Total slides: {len(prs.slides)}")
+    print(f"💾 File saved as: {output_file}")
+    print(f"📁 Location: {os.path.abspath(output_file)}")
+    print(f"\n🎉 Ready for your anatomy seminar!")
+    
+    return output_file
 
-# Slide 28: Ligamentous Attachments
-add_content_slide(prs, "Ligamentous Attachments", [
-    "• ANNULAR LIGAMENT: Encircles radial head and neck",
-    "• QUADRATE LIGAMENT: Supports neck",
-    "• INTEROSSEOUS MEMBRANE: Connects to ulna",
-    "• LATERAL CARPAL LIGAMENT: Attaches to styloid process",
-    "• PALMAR RADIO-CARPAL LIGAMENT: Anterior surface",
-    "• TRIANGULAR DISC: Inferior radio-ulnar joint",
-    "• FIBROUS CAPSULE: Surrounds wrist joint"
-], slide_num)
-slide_num += 1
-
-# Slide 29: Clinical Significance
-add_content_slide(prs, "Clinical Significance", [
-    "• RADIAL PULSE: Palpated on anterior surface near wrist",
-    "• COLLES' FRACTURE: Common distal radius fracture",
-    "• SMITH'S FRACTURE: Reverse of Colles' fracture",
-    "• MONTEGGIA FRACTURE: Radius fracture + ulnar dislocation",
-    "• POSTERIOR INTEROSSEOUS NERVE: Can be compressed",
-    "• SUPINATION/PRONATION: Compromised with fractures",
-    "• WRIST DISORDERS: Affect radio-carpal joint"
-], slide_num)
-slide_num += 1
-
-# Slide 30: Summary & Key Points
-add_content_slide(prs, "Summary - Key Points to Remember", [
-    "✓ Radius is LATERAL bone of forearm",
-    "✓ Three regions: Head, Shaft, Styloid process",
-    "✓ Articulates with HUMERUS, ULNA, and CARPAL BONES",
-    "✓ Styloid process extends BEYOND ulna styloid",
-    "✓ Dorsal tubercle is important landmark",
-    "✓ Ulna is EXCLUDED from wrist joint",
-    "✓ Critical for pronation, supination, and hand support"
-], slide_num)
-
-# Save presentation
-output_path = 'Radius_Anatomy_Seminar.pptx'
-prs.save(output_path)
-print(f"✅ Presentation created successfully!")
-print(f"📊 Total slides: {len(prs.slides)}")
-print(f"💾 File saved as: {output_path}")
+if __name__ == "__main__":
+    try:
+        main()
+    except Exception as e:
+        print(f"❌ Error: {e}")
+        import traceback
+        traceback.print_exc()
