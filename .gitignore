@@ -1,0 +1,57 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+ENV/
+env/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Generated files
+*.pptx
+!Radius_Anatomy_Seminar.pptx
+*.ppt
+*.pdf
+.ipynb_checkpoints/
+
+# Logs
+*.log
+logging.log
+
+# OS
+Thumbs.db
+.DS_Store
+*.exe
+*.dll
+
+# Temp files
+*.tmp
+*.temp
+.~*
